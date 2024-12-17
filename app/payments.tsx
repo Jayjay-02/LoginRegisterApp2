@@ -1,33 +1,39 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React from "react";
+import { View, Text, StyleSheet, FlatList } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 
-const sampleReceipt = {
-  storeName: 'JJK Store',
-  date: new Date().toLocaleString(),
-  items: [
-    { name: 'T-shirt Jay Brand', price: 250 },
-    { name: 'T-shirt Jade Brand', price: 250 },
-    { name: 'T-shirt Kim Brand', price: 250 },
-  ],
-  total: 750,
-};
+interface Product {
+  id: number;
+  image: any;
+  price: string;
+  description: string;
+}
 
-export default function ReceiptPage() {
+export default function PaymentPage() {
+  const { cart } = useLocalSearchParams();
+  const parsedCart: Product[] = cart ? JSON.parse(cart as string) : [];
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{sampleReceipt.storeName}</Text>
-      <Text style={styles.date}>Date: {sampleReceipt.date}</Text>
-
-      <View style={styles.itemsContainer}>
-        {sampleReceipt.items.map((item, index) => (
-          <View key={index} style={styles.item}>
-            <Text style={styles.itemName}>{item.name}</Text>
-            <Text style={styles.itemPrice}>{item.price} pesos</Text>
+      <Text style={styles.title}>Your Cart</Text>
+      <FlatList
+        data={parsedCart}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.item}>
+            <Text style={styles.itemName}>{item.description}</Text>
+            <Text style={styles.itemPrice}>{item.price}</Text>
           </View>
-        ))}
-      </View>
-
-      <Text style={styles.total}>Total: {sampleReceipt.total} pesos</Text>
+        )}
+      />
+      <Text style={styles.total}>
+        Total:{" "}
+        {parsedCart.reduce(
+          (total, item) => total + parseInt(item.price.split(" ")[0]),
+          0
+        )}{" "}
+        pesos
+      </Text>
     </View>
   );
 }
@@ -38,14 +44,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  date: {
-    fontSize: 16,
-    marginBottom: 20,
-  },
-  itemsContainer: {
+    fontWeight: "bold",
     marginBottom: 20,
   },
   item: {
@@ -56,10 +55,11 @@ const styles = StyleSheet.create({
   },
   itemPrice: {
     fontSize: 14,
-    color: '#777',
+    color: "#777",
   },
   total: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
+    marginTop: 20,
   },
 });
